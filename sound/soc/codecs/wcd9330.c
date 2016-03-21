@@ -4808,25 +4808,25 @@ EXPORT_SYMBOL(tomtom_read);
 static
 #endif
 int tomtom_write(struct snd_soc_codec *codec, unsigned int reg,
- unsigned int value)
+	unsigned int value)
 {
- int ret;
- struct wcd9xxx *wcd9xxx = codec->control_data;
+	int ret;
+	struct wcd9xxx *wcd9xxx = codec->control_data;
 #ifdef CONFIG_SOUND_CONTROL_HAX_3_GPL
- unsigned int val;
+	unsigned int val;
 #endif
 
- if (reg == SND_SOC_NOPM)
- return 0;
+	if (reg == SND_SOC_NOPM)
+		return 0;
 
- BUG_ON(reg > TOMTOM_MAX_REGISTER);
+	BUG_ON(reg > TOMTOM_MAX_REGISTER);
 
- if (!tomtom_volatile(codec, reg)) {
- ret = snd_soc_cache_write(codec, reg, value);
- if (ret != 0)
- dev_err(codec->dev, "Cache write to %x failed: %d\n",
- reg, ret);
- }
+	if (!tomtom_volatile(codec, reg)) {
+		ret = snd_soc_cache_write(codec, reg, value);
+		if (ret != 0)
+			dev_err(codec->dev, "Cache write to %x failed: %d\n",
+				reg, ret);
+	}
 #ifdef CONFIG_SOUND_CONTROL_HAX_3_GPL
 	if (!snd_hax_reg_access(reg)) {
 		if (!((val = snd_hax_cache_read(reg)) != -1)) {
@@ -4861,7 +4861,6 @@ static void tomtom_shutdown(struct snd_pcm_substream *substream,
 	pr_debug("%s(): substream = %s  stream = %d\n" , __func__,
 		 substream->name, substream->stream);
 }
-
 
 int tomtom_mclk_enable(struct snd_soc_codec *codec, int mclk_enable, bool dapm)
 {
