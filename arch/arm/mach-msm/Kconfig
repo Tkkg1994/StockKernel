@@ -974,6 +974,39 @@ config MSM_DEVFREQ_CPUBW
 	  agnostic interface to so that some of the devfreq governors can be
 	  shared across SoCs.
 
+config ZEN_DECISION
+	bool "Zen Decision: MSM Userspace Handler"
+	depends on SMP && FB
+	default n
+	help
+	  MSM/Qcomm devices have multiple userspace applications that handle
+	  CPU hotplugging and frequency operations.
+
+	  ZenDecision is a "handler" to account for behavior caused by
+	  disabling some of these services.
+
+	  For example, If MPDecision is disabled and MSM-Thermal_Engine is 
+	  enabled in the userspace. Situations where CPUs go offline but never
+	  come back online occur. ZenDecision handles the situation of CPUs
+	  never coming online when they are supposed.
+  
+	  ZenDecision ensures all CPUs are online when they are supposed to be by:
+	  - Enable all CPUs when screen comes on after wake_wait_delay
+	  - Ignore all CPU_UP operations when battery level is <= 15% to respect
+	    decisions of MSMThermal.
+
+	  Userspace tunables for ZenDecision (/sys/kernel/zen_decision):
+	  - enabled (0 or 1): Enable or disable the driver.
+	  - wake_wait_time (0-60000): How long to wait before executing CPU_UP work.
+	  - bat_threshold_ignore (0-100, 0=disabled): Don't do any CPU_UP work up to
+	     this battery charge level.
+
+	  WARNING: ZenDecision is not a direct replacement for any of the MSM userspace
+	  services. It is simply designed to "handle" specific behaviors that are caused
+	  by disabling these services.
+
+	  If unsure, say N.
+
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
 	default n
@@ -1806,6 +1839,76 @@ config SEC_THERMISTOR
 config SAMSUNG_PRODUCT_SHIP
         bool "set up for product shipping"
         default n
+
+config MSM_HOTPLUG
+	bool "MSM hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  The MSM hotplug driver controls on-/offlining of additional cores based
+	  on current cpu load.
+
+config BRICKED_HOTPLUG
+	bool "Enable kernel based mpdecision"
+	depends on MSM_RUN_QUEUE_STATS
+	default y
+	help
+	  This enables kernel based multi core control.
+	  (up/down hotplug based on load)
+
+config INTELLI_HOTPLUG
+	bool "Intelli hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  An intelligent cpu hotplug driver for
+	  Low Latency Frequency Transition capable processors.
+
+config ALUCARD_HOTPLUG
+	bool "Enable alucard-hotplug cpu hotplug driver"
+	default y
+	help
+	  Generic Alucard-hotplug cpu hotplug driver for ARM SOCs.
+
+config MAKO_HOTPLUG
+	bool "Mako hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  Generic hotplug driver for SMP devices.
+
+config MSM_LIMITER
+	bool "MSM Frequency Limiter Driver"
+	default y
+	help
+	  The MSM Frequency Limiter Driver controls max frequency limit for each CPU
+	  to desired value on suspend/resume
+
+config MSM_SLEEPER
+	bool "CPU hotplug driver"
+	default y
+	help
+	  CPU hotplug driver
+
+config BLU_PLUG
+	bool "Dynamic hotplug driver"
+	depends on HOTPLUG_CPU
+	default n
+	help
+	  The Dynamic hotplug driver automatically online/offline CPUs proportional to system load.
+
+config AUTOSMP
+	bool "Multi-core automatic hotplug support"
+	depends on SMP && HOTPLUG_CPU
+	default n
+	help
+	  Automatically hotplugs the multiple cpu cores on and off
+	  based on cpu load and suspend state
+
+config THUNDERPLUG_CONTROL
+	bool "Enable plugging down/up of cores based on load per core"
+	help
+	  This driver hotplugs cpu cores based on per-core load
 
 config FORCE_FAST_CHARGE
 	bool "Force fast charging (AC/USB) by Yank555.lu"

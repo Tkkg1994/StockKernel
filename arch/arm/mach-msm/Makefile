@@ -151,4 +151,14 @@ obj-$(CONFIG_SEC_THERMISTOR) += sec_thermistor.o apq8084-thermistor.o
 obj-$(CONFIG_BT_BCM4358) += board-bluetooth-bcm4358.o
 obj-$(CONFIG_GSM_MODEM_SPRD6500) += board-sprd6500-spi.o board-sprd6500-modems.o
 
+obj-$(CONFIG_MSM_HOTPLUG) += msm_hotplug.o
+obj-$(CONFIG_INTELLI_HOTPLUG) += intelli_hotplug.o
+obj-$(CONFIG_BRICKED_HOTPLUG) += bricked_hotplug.o
+obj-$(CONFIG_MSM_LIMITER) += msm_limiter.o
+obj-$(CONFIG_ZEN_DECISION) += msm_zen_decision.o
+obj-$(CONFIG_ALUCARD_HOTPLUG) += alucard_hotplug.o
+obj-$(CONFIG_MAKO_HOTPLUG) += mako_hotplug.o
+obj-$(CONFIG_MSM_SLEEPER) += msm_sleeper.o
+obj-$(CONFIG_BLU_PLUG) += blu_plug.o
+
 obj-$(CONFIG_FORCE_FAST_CHARGE) += fastchg.o
