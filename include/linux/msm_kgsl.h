@@ -18,6 +18,14 @@
 #define KGSL_3D0_SHADER_MEMORY	"kgsl_3d0_shader_memory"
 #define KGSL_3D0_IRQ		"kgsl_3d0_irq"
 
+#ifdef CONFIG_CPU_FREQ_GOV_ELEMENTALX
+extern int graphics_boost_elementalx;
+#endif
+
+#ifdef CONFIG_CPU_FREQ_GOV_ELECTROACTIVE
+extern int graphics_boost_electroactive;
+#endif
+
 enum kgsl_iommu_context_id {
 	KGSL_IOMMU_CONTEXT_USER = 0,
 	KGSL_IOMMU_CONTEXT_PRIV = 1,
