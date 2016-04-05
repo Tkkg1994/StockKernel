@@ -439,16 +439,9 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 static bool cpufreq_update_allowed(int mpd)
 {
 #ifdef CONFIG_MSM_LIMITER
-<<<<<<< HEAD
-	if (mpd == 0 && limit.mpd_enabled == 0)
-		return false;
-#endif
-=======
 	if (mpd == 0 && mpd_enabled == 0)
 		return false;
 #endif
-
->>>>>>> 4a3ef4f... msm_limiter: Refactor to support new SOCs
 	return true;
 }
 
