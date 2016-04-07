@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2016, Pranav Vashi <neobuddy89@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -93,7 +94,6 @@ static u64 last_input_time;
 
 static unsigned int min_input_interval = 150;
 module_param(min_input_interval, uint, 0644);
-
 
 static int set_input_boost_freq(const char *buf, const struct kernel_param *kp)
 {
@@ -349,8 +349,10 @@ static int boost_migration_notify(struct notifier_block *nb,
 	}
 #endif
 
-	if (suspended)
+#ifdef CONFIG_STATE_NOTIFIER
+	if (state_suspended)
 		return NOTIFY_OK;
+#endif
 
 	if (load_based_syncs && (mnd->load <= migration_load_threshold))
 		return NOTIFY_OK;
@@ -420,8 +422,12 @@ static void cpuboost_input_event(struct input_handle *handle,
 	u64 now;
 	unsigned int min_interval;
 
-	if (suspended || !input_boost_enabled ||
-		work_pending(&input_boost_work))
+#ifdef CONFIG_STATE_NOTIFIER
+	if (state_suspended)
+		return;
+#endif
+
+	if (!input_boost_enabled || work_pending(&input_boost_work))
 		return;
 
 #ifdef CONFIG_IRLED_GPIO
@@ -520,21 +526,22 @@ static struct input_handler cpuboost_input_handler = {
 static int cpuboost_cpu_callback(struct notifier_block *cpu_nb,
 				 unsigned long action, void *hcpu)
 {
+#ifdef CONFIG_STATE_NOTIFIER
+	if (state_suspended)
+		return NOTIFY_OK;
+#endif
+
 	switch (action & ~CPU_TASKS_FROZEN) {
-	case CPU_UP_PREPARE:
-	case CPU_DEAD:
-	case CPU_UP_CANCELED:
-		break;
-	case CPU_ONLINE:
-		if (suspended || !hotplug_boost || !input_boost_enabled ||
-		     work_pending(&input_boost_work))
+		case CPU_ONLINE:
+			if (!hotplug_boost || !input_boost_enabled ||
+			     work_pending(&input_boost_work))
+				break;
+			pr_debug("Hotplug boost for CPU%lu\n", (long)hcpu);
+			queue_work(cpu_boost_wq, &input_boost_work);
+			last_input_time = ktime_to_us(ktime_get());
 			break;
-		pr_debug("Hotplug boost for CPU%lu\n", (long)hcpu);
-		queue_work(cpu_boost_wq, &input_boost_work);
-		last_input_time = ktime_to_us(ktime_get());
-		break;
-	default:
-		break;
+		default:
+			break;
 	}
 	return NOTIFY_OK;
 }
@@ -559,11 +566,7 @@ static int state_notifier_callback(struct notifier_block *this,
 {
 	switch (event) {
 		case STATE_NOTIFIER_ACTIVE:
-			suspended = false;
 			__wakeup_boost();
-			break;
-		case STATE_NOTIFIER_SUSPEND:
-			suspended = true;
 			break;
 		default:
 			break;
