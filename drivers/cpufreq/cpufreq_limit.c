@@ -221,15 +221,6 @@ static int __init cpufreq_limit_init(void)
 	if (ret)
 		return ret;
 
-	ret = cpufreq_get_global_kobject();
-
-	if (!ret) {
-		ret = sysfs_create_group(cpufreq_global_kobject,
-				&limit_attr_group);
-		if (ret)
-			cpufreq_put_global_kobject();
-	}
-
 #ifdef CONFIG_SEC_PM
 #  ifdef CONFIG_SUSPEND_BOOSTER
 	pm_notifier(cpufreq_limit_suspend_handler, 0);
@@ -245,7 +236,6 @@ static void __exit cpufreq_limit_exit(void)
 			CPUFREQ_POLICY_NOTIFIER);
 
 	sysfs_remove_group(cpufreq_global_kobject, &limit_attr_group);
-	cpufreq_put_global_kobject();
 }
 
 MODULE_AUTHOR("Minsung Kim <ms925.kim@samsung.com>");
